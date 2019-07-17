@@ -16,22 +16,35 @@ import re
 os.chdir('C:/Users/jyk306/Documents/CHiP/C-CDA Parser/output')
 
 # Set Up Working Directory + Associated Variables + prefixes for lxml
-folderPath = "C:/Users/jyk306/Documents/CHiP/C-CDA Parser/Proto Files"
+folderPath = "C:/Users/jyk306/Documents/CHiP/C-CDA Parser/Test Files"
 filePaths = glob.glob(folderPath+"/*")
 prefix = '{urn:hl7-org:v3}'
 
 # %% swap out blank datapoints
+i = 1 
 
-f_open = open('C:/Users/jyk306/Documents/CHiP/C-CDA Parser/Test Files/1.xml')
-xml_file = f_open.read()
-f_open.close()
+for path in filePaths:
+    
+    # read file
+    f_open = open(path)
+    xml_file = f_open.read()
+    f_open.close()
+    
+    # replace null nodes 
+    xml_file = re.sub('<td/>', '<td>NA</td>', xml_file)
+    
+    # write new file 
+    file_name = str(i) + '_new.xml'
+    f_open = open(file_name, 'w+')
+    f_open.write(xml_file)
+    f_open.close()
+    i = i + 1 
 
-xml_file = re.sub('<td/>', '<td>NA</td>', xml_file)
-xml_file = re.sub('<td rowspan="1"/>', '<td>NA</td>', xml_file)
+# %% Read New Data
 
-f_open = open('1_new.xml', 'w+')
-f_open.write(xml_file)
-f_open.close()
+folderPath = "C:/Users/jyk306/Documents/CHiP/C-CDA Parser/Proto Files"
+filePaths = glob.glob(folderPath+"/*")
+prefix = '{urn:hl7-org:v3}'
 
 # %% functions 
 def getCurrPtId():
@@ -110,14 +123,17 @@ def getData(table):
     # get data of the table of interest
     
     dataList = []
-            
+    i = 1         
     for data in table.getElementsByTagName("td"):
         nodes = data.childNodes
         for node in nodes:
+            print('node number:', i) 
+            i = i + 1
             if node.nodeType == node.TEXT_NODE:
                 dataList.append(node.data)
-            else:
-                dataList.append('NA')
+        if data.getAttribute("rowspan") is not '':
+            rowspan_var = 'rowspan=' + str(data.getAttribute("rowspan"))
+            dataList.append(rowspan_var)        
     
     #print(dataList)        
     return dataList
