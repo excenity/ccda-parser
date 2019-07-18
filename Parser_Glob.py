@@ -12,11 +12,16 @@ import glob
 import os 
 import re
 
+dir_path = '/Users/Excenity/Documents/CHiP-LOCAL/C-CDA_Parser/ccda-parser/'
+# windows : C:/Users/jyk306/Documents/CHiP/C-CDA Parser/
+# mac: /Users/Excenity/Documents/CHiP-LOCAL/C-CDA_Parser/ccda-parser/
+
 # Set up working directory 
-os.chdir('C:/Users/jyk306/Documents/CHiP/C-CDA Parser/output')
+os.chdir(dir_path + 'output')
+
 
 # Set Up Working Directory + Associated Variables + prefixes for lxml
-folderPath = "C:/Users/jyk306/Documents/CHiP/C-CDA Parser/Test Files"
+folderPath = dir_path + "Test Files"
 filePaths = glob.glob(folderPath+"/*")
 prefix = '{urn:hl7-org:v3}'
 
@@ -42,7 +47,7 @@ for path in filePaths:
 
 # %% Read New Data
 
-folderPath = "C:/Users/jyk306/Documents/CHiP/C-CDA Parser/Proto Files"
+folderPath = dir_path + "Proto Files"
 filePaths = glob.glob(folderPath+"/*")
 prefix = '{urn:hl7-org:v3}'
 
@@ -114,7 +119,7 @@ def getHeaders(table):
         nodes = data.childNodes
         for node in nodes:
             if node.nodeType == node.TEXT_NODE:
-                print(node.TEXT_NODE)
+                #print(node.TEXT_NODE)
                 headerList.append(node.data)   
               
     return headerList
@@ -127,7 +132,7 @@ def getData(table):
     for data in table.getElementsByTagName("td"):
         nodes = data.childNodes
         for node in nodes:
-            print('node number:', i) 
+            #print('node number:', i) 
             i = i + 1
             if node.nodeType == node.TEXT_NODE:
                 dataList.append(node.data)
@@ -140,14 +145,22 @@ def getData(table):
 
 def chunker(dataList, headers):
     # creates a new row for every new row of data based on length of data
+    global row_num
     
     DataLL = []
     DataChunk =[]
+    row_num = []
     
     chunk_l = len(headers)
     
     while (len(dataList) != 0):
         DataChunk = dataList[:chunk_l]
+        
+        for i in range(len(DataChunk)):
+            if re.match('^rowspan=', DataChunk[i]) is not None:
+                row_num.append(re.split('^rowspan=', DataChunk[i])[1])
+                print(re.split('^rowspan=\\d', DataChunk[i])[1])
+                
         DataLL.append(DataChunk)
         dataList = dataList[chunk_l:]
         
@@ -161,7 +174,7 @@ def dataFrame(table_name):
     key_table = getTable(table_name)
     
     headers = getHeaders(key_table)
-    print(headers)
+    #print(headers)
     tableData = getData(key_table)
     tableData_f = chunker(tableData,headers)
     
