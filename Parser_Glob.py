@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+y # -*- coding: utf-8 -*-
 """
 Newest XML Parser Tool
 
@@ -12,13 +12,13 @@ import glob
 import os 
 import re
 
-dir_path = '/Users/Excenity/Documents/CHiP-LOCAL/C-CDA_Parser/ccda-parser/'
-# windows : C:/Users/jyk306/Documents/CHiP/C-CDA Parser/
-# mac: /Users/Excenity/Documents/CHiP-LOCAL/C-CDA_Parser/ccda-parser/
+win_path = 'C:/Users/jyk306/Documents/CHiP/C-CDA Parser/git/'
+mac_path = '/Users/Excenity/Documents/CHiP-LOCAL/C-CDA_Parser/ccda-parser/'
+
+dir_path = win_path
 
 # Set up working directory 
 os.chdir(dir_path + 'output')
-
 
 # Set Up Working Directory + Associated Variables + prefixes for lxml
 folderPath = dir_path + "Test Files"
@@ -159,7 +159,7 @@ def chunker(dataList, headers):
         for i in range(len(DataChunk)):
             if re.match('^rowspan=', DataChunk[i]) is not None:
                 row_num.append(re.split('^rowspan=', DataChunk[i])[1])
-                print(re.split('^rowspan=\\d', DataChunk[i])[1])
+                print(re.split('^rowspan=', DataChunk[i])[1])
                 
         DataLL.append(DataChunk)
         dataList = dataList[chunk_l:]
