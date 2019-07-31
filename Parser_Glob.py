@@ -145,24 +145,33 @@ def getData(table):
 
 def chunker(dataList, headers):
     # creates a new row for every new row of data based on length of data
-    global row_num
+    global repeats
     
     DataLL = []
-    DataChunk =[]
-    row_num = []
+    DataChunk =[] 
+    repeats = 0
+    column = 0    
     
     chunk_l = len(headers)
     
     while (len(dataList) != 0):
+        
         DataChunk = dataList[:chunk_l]
         
-        for i in range(len(DataChunk)):
-            if re.match('^rowspan=', DataChunk[i]) is not None:
-                row_num.append(re.split('^rowspan=', DataChunk[i])[1])
-                print(re.split('^rowspan=', DataChunk[i])[1])
-                
-        DataLL.append(DataChunk)
-        dataList = dataList[chunk_l:]
+        if repeats > 0:
+            DataChunk = DataChunk[:column] + ['NA'] + DataChunk[column:]
+            repeats = repeats - 1 
+            DataChunk = DataChunk[:-1]
+            DataLL.append(DataChunk)
+            dataList = dataList[chunk_l-1:]
+        else:
+            for i in range(len(DataChunk)):
+                if re.match('^rowspan=', DataChunk[i]) is not None:     
+                    column =  i 
+                    repeats = int(re.split('^rowspan=', DataChunk[i])[1]) - 1  
+            DataChunk[i] = 'NA'        
+            DataLL.append(DataChunk)
+            dataList = dataList[chunk_l:]
         
     return DataLL
 
