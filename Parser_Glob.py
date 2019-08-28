@@ -1,4 +1,4 @@
-y # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Newest XML Parser Tool
 
@@ -24,6 +24,15 @@ os.chdir(dir_path + 'output')
 folderPath = dir_path + "Test Files"
 filePaths = glob.glob(folderPath+"/*")
 prefix = '{urn:hl7-org:v3}'
+
+# %% read directory function
+def read_dir():
+    path = str()
+    
+    print('input folder path:')
+    path = input()
+    
+    return path
 
 # %% swap out blank datapoints
 i = 1 
@@ -202,7 +211,6 @@ def getAllPatients(table_name):
     global ptId
     global ptFound, df_row
 
-
     dfs = []
     
     for currFile in filePaths:
@@ -242,19 +250,58 @@ def main():
 
 main()
 
-# %% test 
+# %% get table names 
+def inputTables():
+    
+    global currPt
+    
+    currFile = filePaths[0]
+    
+    currPt = parse(currFile)
+    
+    tableNames()
+    
+    print('Enter name for Encounters table:')
+    tblName_Encounters = input()
+    
+    print('Enter name for Problem List table:')
+    tblName_ProblemList = input()
+    
+    print('Enter name for Vitals table:')
+    tblName_Vitals = input()
+    
+    print('Enter name for Results table:')
+    tblName_Results = input()
 
-labs = getTable('Results')
+    encounters = getAllPatients(tblName_Encounters)
+    problemList = getAllPatients(tblName_ProblemList)
+    vitals = getAllPatients(tblName_Vitals)
+    results = getAllPatients(tblName_Results)
 
-dataList = []
-n = 0
+    return encounters, problemList, vitals, results
 
-for data in labs.getElementsByTagName("td"):
-        nodes = data.childNodes
-        for node in nodes:
-            n = n + 1
-            if node.nodeType == node.TEXT_NODE:
-                dataList.append(node.data)
-            else:
-                dataList.append('NA')
+inputTables()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
