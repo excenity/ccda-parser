@@ -15,7 +15,7 @@ import re
 win_path = 'C:/Users/jyk306/Documents/CHiP/C-CDA Parser/git/'
 mac_path = '/Users/Excenity/Documents/CHiP-LOCAL/C-CDA_Parser/ccda-parser/'
 
-dir_path = win_path
+dir_path = mac_path
 
 # Set up working directory 
 os.chdir(dir_path + 'output')
@@ -145,7 +145,7 @@ def getData(table):
             i = i + 1
             if node.nodeType == node.TEXT_NODE:
                 dataList.append(node.data)
-        if data.getAttribute("rowspan") is not '':
+        if data.getAttribute("rowspan") != '':
             rowspan_var = 'rowspan=' + str(data.getAttribute("rowspan"))
             dataList.append(rowspan_var)        
     
@@ -200,6 +200,29 @@ def dataFrame(table_name):
     df.columns = headers
     
     return df
+
+def getDemographics(parsedFile):
+    # gets demographics information for the patient 
+    
+    race = parsedFile.getElementsByTagName('raceCode')
+    for node in race:    
+        race_code = node.getAttribute('code')
+    if race_code is None: 
+        print('no race information found')
+    
+    ethnicity = parsedFile.getElementsByTagName('ethnicGroupCode')
+    for node in ethnicity: 
+        ethnicity_code = node.getAttribute('code')
+    if ethnicity_code is None:
+        print('no ethnicity information found')
+        
+    gender = parsedFile.getElementsByTagName('administrativeGenderCode')
+    for node in gender: 
+        gender_code = node.getAttribute('code')
+    if gender_code is None:
+        print('no gender information found')
+    
+    return race_code, ethnicity_code, gender_code
 
 def getAllPatients(table_name):
     # puts everything together 
@@ -282,8 +305,30 @@ def inputTables():
 
 inputTables()
 
+# %% testing demographics
+
+currFile = filePaths[1]
+    
+currPt = parse(currFile)
 
 
+race = currPt.getElementsByTagName('raceCode')
+for node in race:    
+    race = node.getAttribute('code')
+if race is None: 
+    print('no race information found')
+
+ethnicity = currPt.getElementsByTagName('ethnicGroupCode')
+for node in ethnicity: 
+    ethnicity = node.getAttribute('code')
+if ethnicity is None:
+    print('no ethnicity information found')
+    
+gender = currPt.getElementsByTagName('administrativeGenderCode')
+for node in gender: 
+    gender = node.getAttribute('code')
+if gender is None:
+    print('no gender information found')
 
 
 
