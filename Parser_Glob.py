@@ -15,7 +15,7 @@ import re
 win_path = 'C:/Users/jyk306/Documents/CHiP/C-CDA Parser/git/'
 mac_path = '/Users/Excenity/Documents/CHiP-LOCAL/C-CDA_Parser/ccda-parser/'
 
-dir_path = mac_path
+dir_path = win_path
 
 # Set up working directory 
 os.chdir(dir_path + 'output')
@@ -178,7 +178,7 @@ def chunker(dataList, headers):
                 if re.match('^rowspan=', DataChunk[i]) is not None:     
                     column =  i 
                     repeats = int(re.split('^rowspan=', DataChunk[i])[1]) - 1  
-            DataChunk[i] = 'NA'        
+                    DataChunk[i] = 'NA'        
             DataLL.append(DataChunk)
             dataList = dataList[chunk_l:]
         
@@ -194,35 +194,63 @@ def dataFrame(table_name):
     headers = getHeaders(key_table)
     #print(headers)
     tableData = getData(key_table)
-    tableData_f = chunker(tableData,headers)
+    tableData_f = chunker(tableData, headers)
     
     df = pd.DataFrame(tableData_f)
     df.columns = headers
     
     return df
 
-def getDemographics(parsedFile):
-    # gets demographics information for the patient 
+def getDemographics(file):
+# gets demographics information of patient 
     
-    race = parsedFile.getElementsByTagName('raceCode')
+    global pt_name, pt_age, race_code, ethnicity_code, gender_code, demographics
+    
+    pt_name = 'NA'
+    pt_age = 'NA'
+    race_code = 'NA'
+    ethnicity_code = 'NA'
+    gender_code = 'NA'
+    
+    name = file.getElementsByTagName('nameCode')
+    for node in name:    
+        pt_name = node.getAttribute('code')
+        if pt_name is None: 
+            print('no name information found')
+        
+    age = file.getElementsByTagName('ageCode')
+    for node in age:    
+        pt_age = node.getAttribute('code')
+        if pt_age is None: 
+            print('no name information found')
+               
+    race = file.getElementsByTagName('raceCode')
     for node in race:    
         race_code = node.getAttribute('code')
-    if race_code is None: 
-        print('no race information found')
-    
-    ethnicity = parsedFile.getElementsByTagName('ethnicGroupCode')
+        if race_code is None: 
+            print('no race information found')
+            
+    ethnicity = file.getElementsByTagName('ethnicGroupCode')
     for node in ethnicity: 
         ethnicity_code = node.getAttribute('code')
-    if ethnicity_code is None:
-        print('no ethnicity information found')
-        
-    gender = parsedFile.getElementsByTagName('administrativeGenderCode')
+        if ethnicity_code is None:
+            print('no ethnicity information found')
+            
+            
+    gender = file.getElementsByTagName('administrativeGenderCode')
     for node in gender: 
         gender_code = node.getAttribute('code')
-    if gender_code is None:
-        print('no gender information found')
-    
-    return race_code, ethnicity_code, gender_code
+        if gender_code is None:
+            print('no gender information found')
+               
+    # create data frame
+    demographics = pd.DataFrame({"name" : [pt_name],
+                                 "age"  : [pt_age],
+                                 "race" : [race_code],
+                                 "ethnicity" : [ethnicity_code],
+                                 "gender" : [gender_code]})
+          
+    return demographics
 
 def getAllPatients(table_name):
     # puts everything together 
@@ -262,23 +290,13 @@ def getAllPatients(table_name):
     
     return table_final
 
-# %% run functions
-def main():
-    
-    table_f = getAllPatients("Results")
-    print(table_f)
-    table_f.to_csv("test.csv")
-    
-    return 
-
-main()
-
 # %% get table names 
 def inputTables():
+# function for getting the names of the relevant 
     
     global currPt
     
-    currFile = filePaths[0]
+    currFile = filePaths[1]
     
     currPt = parse(currFile)
     
@@ -300,51 +318,9 @@ def inputTables():
     problemList = getAllPatients(tblName_ProblemList)
     vitals = getAllPatients(tblName_Vitals)
     results = getAllPatients(tblName_Results)
+    demographics = getDemographics()
 
-    return encounters, problemList, vitals, results
-
-inputTables()
-
-# %% testing demographics
-
-currFile = filePaths[1]
-    
-currPt = parse(currFile)
-
-
-race = currPt.getElementsByTagName('raceCode')
-for node in race:    
-    race = node.getAttribute('code')
-if race is None: 
-    print('no race information found')
-
-ethnicity = currPt.getElementsByTagName('ethnicGroupCode')
-for node in ethnicity: 
-    ethnicity = node.getAttribute('code')
-if ethnicity is None:
-    print('no ethnicity information found')
-    
-gender = currPt.getElementsByTagName('administrativeGenderCode')
-for node in gender: 
-    gender = node.getAttribute('code')
-if gender is None:
-    print('no gender information found')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return demographics, encounters, problemList, vitals, results
 
 
 
