@@ -201,54 +201,70 @@ def dataFrame(table_name):
     
     return df
 
-def getDemographics(file):
+def getDemographics():
 # gets demographics information of patient 
     
-    global pt_name, pt_age, race_code, ethnicity_code, gender_code, demographics
+    global pt_name, pt_age, race_code, ethnicity_code, gender_code, demographics, demographics_pt
     
-    pt_name = 'NA'
-    pt_age = 'NA'
-    race_code = 'NA'
-    ethnicity_code = 'NA'
-    gender_code = 'NA'
+    i = 0
     
-    name = file.getElementsByTagName('nameCode')
-    for node in name:    
-        pt_name = node.getAttribute('code')
-        if pt_name is None: 
-            print('no name information found')
+    for path in filePaths:
         
-    age = file.getElementsByTagName('ageCode')
-    for node in age:    
-        pt_age = node.getAttribute('code')
-        if pt_age is None: 
-            print('no name information found')
-               
-    race = file.getElementsByTagName('raceCode')
-    for node in race:    
-        race_code = node.getAttribute('code')
-        if race_code is None: 
-            print('no race information found')
+        pt_name = 'NA'
+        pt_age = 'NA'
+        race_code = 'NA'
+        ethnicity_code = 'NA'
+        gender_code = 'NA'
+    
+        file = parse(path)
+        
+        name = file.getElementsByTagName('nameCode')
+        for node in name:    
+            pt_name = node.getAttribute('code')
+            if pt_name is None: 
+                print('no name information found')
             
-    ethnicity = file.getElementsByTagName('ethnicGroupCode')
-    for node in ethnicity: 
-        ethnicity_code = node.getAttribute('code')
-        if ethnicity_code is None:
-            print('no ethnicity information found')
-            
-            
-    gender = file.getElementsByTagName('administrativeGenderCode')
-    for node in gender: 
-        gender_code = node.getAttribute('code')
-        if gender_code is None:
-            print('no gender information found')
-               
-    # create data frame
-    demographics = pd.DataFrame({"name" : [pt_name],
-                                 "age"  : [pt_age],
-                                 "race" : [race_code],
-                                 "ethnicity" : [ethnicity_code],
-                                 "gender" : [gender_code]})
+        age = file.getElementsByTagName('ageCode')
+        for node in age:    
+            pt_age = node.getAttribute('code')
+            if pt_age is None: 
+                print('no name information found')
+                   
+        race = file.getElementsByTagName('raceCode')
+        for node in race:    
+            race_code = node.getAttribute('code')
+            if race_code is None: 
+                print('no race information found')
+                
+        ethnicity = file.getElementsByTagName('ethnicGroupCode')
+        for node in ethnicity: 
+            ethnicity_code = node.getAttribute('code')
+            if ethnicity_code is None:
+                print('no ethnicity information found')
+                
+                
+        gender = file.getElementsByTagName('administrativeGenderCode')
+        for node in gender: 
+            gender_code = node.getAttribute('code')
+            if gender_code is None:
+                print('no gender information found')
+                   
+        # create data frame
+        if i == 0: 
+            demographics_pt = pd.DataFrame({"name"      : [pt_name],
+                                            "age"       : [pt_age],
+                                            "race"      : [race_code],
+                                            "ethnicity" : [ethnicity_code],
+                                            "gender"    : [gender_code]})
+            demographics = demographics_pt
+            i = 1
+        else:
+            demographics_pt = pd.DataFrame({"name"      : [pt_name],
+                                            "age"       : [pt_age],
+                                            "race"      : [race_code],
+                                            "ethnicity" : [ethnicity_code],
+                                            "gender"    : [gender_code]})
+            demographics = pd.concat([demographics, demographics_pt])
           
     return demographics
 
@@ -313,16 +329,29 @@ def inputTables():
     
     print('Enter name for Results table:')
     tblName_Results = input()
+    
+    print('Enter name for Medications table:')
+    tblName_Meds = input()
 
     encounters = getAllPatients(tblName_Encounters)
     problemList = getAllPatients(tblName_ProblemList)
     vitals = getAllPatients(tblName_Vitals)
     results = getAllPatients(tblName_Results)
+    meds = getAllPatients(tblName_Meds)
+
+    return demographics, encounters, problemList, vitals, results, meds
+
+
+# %%  Simple Input
+def inputTables_simple():
+# function for getting the names of the relevant 
+        
+    encounters = getAllPatients('Encounters')
+    problemList = getAllPatients('Problem List')
+    vitals = getAllPatients('Vital Signs')
+    results = getAllPatients('Results')
+    meds = getAllPatients('Medications')
     demographics = getDemographics()
 
-    return demographics, encounters, problemList, vitals, results
-
-
-
-
+    return demographics, encounters, problemList, vitals, results, meds
 
