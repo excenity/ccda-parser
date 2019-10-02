@@ -224,25 +224,27 @@ def getDemographics():
             if pt_name is None: 
                 print('no name information found')
             
-        age = file.getElementsByTagName('ageCode')
+            
+        age = file.getElementsByTagName('birthTime')
         for node in age:    
-            pt_age = node.getAttribute('code')
+            pt_age = node.getAttribute('value')
             if pt_age is None: 
                 print('no name information found')
-                   
+                pt_age = 'no birthday'
+                
         race = file.getElementsByTagName('raceCode')
         for node in race:    
             race_code = node.getAttribute('code')
             if race_code is None: 
                 print('no race information found')
+
                 
         ethnicity = file.getElementsByTagName('ethnicGroupCode')
         for node in ethnicity: 
             ethnicity_code = node.getAttribute('code')
             if ethnicity_code is None:
                 print('no ethnicity information found')
-                
-                
+   
         gender = file.getElementsByTagName('administrativeGenderCode')
         for node in gender: 
             gender_code = node.getAttribute('code')
