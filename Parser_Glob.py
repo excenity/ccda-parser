@@ -204,13 +204,15 @@ def dataFrame(table_name):
 def getDemographics():
 # gets demographics information of patient 
     
-    global pt_name, pt_age, race_code, ethnicity_code, gender_code, demographics, demographics_pt
+    global pt_ID_t, pt_first_name, pt_last_name, pt_age, race_code, ethnicity_code, gender_code, demographics, demographics_pt
     
     i = 0
     
     for path in filePaths:
         
-        pt_name = 'NA'
+        pt_ID_t = 'NA'
+        pt_first_name = 'NA'
+        pt_last_name = 'NA'
         pt_age = 'NA'
         race_code = 'NA'
         ethnicity_code = 'NA'
@@ -218,12 +220,22 @@ def getDemographics():
     
         file = parse(path)
         
-        name = file.getElementsByTagName('nameCode')
-        for node in name:    
-            pt_name = node.getAttribute('code')
-            if pt_name is None: 
-                print('no name information found')
-            
+        pt_ID_t = getCurrPtId()
+        pt_ID_t = pt_ID_t['extension']
+        
+        first_name = file.getElementsByTagName('given')
+        nodes = first_name[0].childNodes
+        node = nodes[0]
+        pt_first_name = node.data
+        if pt_first_name is None: 
+            print('no name information found')
+                
+        last_name = file.getElementsByTagName('family')
+        nodes = last_name[0].childNodes
+        node = nodes[0]
+        pt_last_name = node.data
+        if pt_last_name is None: 
+            print('no name information found')
             
         age = file.getElementsByTagName('birthTime')
         for node in age:    
@@ -253,7 +265,9 @@ def getDemographics():
                    
         # create data frame
         if i == 0: 
-            demographics_pt = pd.DataFrame({"name"      : [pt_name],
+            demographics_pt = pd.DataFrame({"pt_id"     : [pt_ID_t],
+                                            "first_name": [pt_first_name],
+                                            "last_name" : [pt_last_name],
                                             "age"       : [pt_age],
                                             "race"      : [race_code],
                                             "ethnicity" : [ethnicity_code],
@@ -261,7 +275,9 @@ def getDemographics():
             demographics = demographics_pt
             i = 1
         else:
-            demographics_pt = pd.DataFrame({"name"      : [pt_name],
+            demographics_pt = pd.DataFrame({"pt_id"     : [pt_ID_t],
+                                            "first_name": [pt_first_name],
+                                            "last_name" : [pt_last_name],
                                             "age"       : [pt_age],
                                             "race"      : [race_code],
                                             "ethnicity" : [ethnicity_code],
