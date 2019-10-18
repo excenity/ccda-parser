@@ -204,9 +204,10 @@ def dataFrame(table_name):
 def getDemographics():
 # gets demographics information of patient 
     
-    global pt_ID_t, pt_first_name, pt_last_name, pt_age, race_code, ethnicity_code, gender_code, demographics, demographics_pt
+    global pt_ID_t, pt_ID, pt_first_name, pt_last_name, pt_age, race_code, ethnicity_code, gender_code, demographics, demographics_pt, root
     
     i = 0
+    pt_ID = []
     
     for path in filePaths:
         
@@ -218,10 +219,15 @@ def getDemographics():
         ethnicity_code = 'NA'
         gender_code = 'NA'
     
-        file = parse(path)
+        file = et.parse(path)
+        root = file.getroot()
         
         pt_ID_t = getCurrPtId()
         pt_ID_t = pt_ID_t['extension']
+        pt_ID.append(pt_ID_t)
+        print(i, pt_ID_t)
+        
+        file = parse(path)
         
         first_name = file.getElementsByTagName('given')
         nodes = first_name[0].childNodes
@@ -283,6 +289,7 @@ def getDemographics():
                                             "ethnicity" : [ethnicity_code],
                                             "gender"    : [gender_code]})
             demographics = pd.concat([demographics, demographics_pt])
+            i = i + 1
           
     return demographics
 
