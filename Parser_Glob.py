@@ -345,7 +345,217 @@ class xmlParser:
         global currPt
 
         currFile = self.intermedFilePaths[1]
+                    if node.data == table_name:
+                        #print ("key_table:", node.data)
+                        key_table = section
+                    #else:
+                        #print(node.data, "- Not This Table")
+    return key_table
 
+def printTableName(table):
+    # get the table of interest based on name
+    
+    for title in table.getElementsByTagName("title"):
+        nodes = title.childNodes
+        for node in nodes:
+            if node.nodeType == node.TEXT_NODE:
+                print(node.data)
+
+def getHeaders(table):
+    # get headers of the table of interest
+    
+    headerList = []
+    
+    for data in table.getElementsByTagName("th"):
+        nodes = data.childNodes
+        for node in nodes:
+            if node.nodeType == node.TEXT_NODE:
+                #print(node.TEXT_NODE)
+                headerList.append(node.data)   
+              
+    return headerList
+
+def getData(table):
+    # get data of the table of interest
+    
+    dataList = []
+    i = 1         
+    for data in table.getElementsByTagName("td"):
+        nodes = data.childNodes
+        for node in nodes:
+            #print('node number:', i) 
+            i = i + 1
+            if node.nodeType == node.TEXT_NODE:
+                dataList.append(node.data)
+        if data.getAttribute("rowspan") != '':
+            rowspan_var = 'rowspan=' + str(data.getAttribute("rowspan"))
+            dataList.append(rowspan_var)        
+    
+    #print(dataList)        
+    return dataList
+
+def chunker(dataList, headers):
+    # creates a new row for every new row of data based on length of data
+    global repeats
+    
+    DataLL = []
+    DataChunk =[] 
+    repeats = 0
+    column = 0    
+    
+    chunk_l = len(headers)
+    
+    while (len(dataList) != 0):
+        
+        DataChunk = dataList[:chunk_l]
+        
+        if repeats > 0:
+            DataChunk = DataChunk[:column] + ['NA'] + DataChunk[column:]
+            repeats = repeats - 1 
+            DataChunk = DataChunk[:-1]
+            DataLL.append(DataChunk)
+            dataList = dataList[chunk_l-1:]
+        else:
+            for i in range(len(DataChunk)):
+                if re.match('^rowspan=', DataChunk[i]) is not None:     
+                    column =  i 
+                    repeats = int(re.split('^rowspan=', DataChunk[i])[1]) - 1  
+                    DataChunk[i] = 'NA'        
+            DataLL.append(DataChunk)
+            dataList = dataList[chunk_l:]
+        
+    return DataLL
+
+def dataFrame(table_name):
+    # creates the final dataframe for the patient's table of interest
+    
+    global tableData
+    
+    key_table = getTable(table_name)
+    
+    headers = getHeaders(key_table)
+    #print(headers)
+    tableData = getData(key_table)
+    tableData_f = chunker(tableData, headers)
+    
+    df = pd.DataFrame(tableData_f)
+    df.columns = headers
+    
+    return df
+
+def getDemographics():
+# gets demographics information of patient 
+    
+    global pt_ID_t, pt_ID, pt_first_name, pt_last_name, pt_age, race_code, ethnicity_code, gender_code, demographics, demographics_pt, root
+    
+    i = 0
+    pt_ID = []
+    
+    for path in filePaths:
+        
+        pt_ID_t = 'NA'
+        pt_first_name = 'NA'
+        pt_last_name = 'NA'
+        pt_age = 'NA'
+        race_code = 'NA'
+        ethnicity_code = 'NA'
+        gender_code = 'NA'
+    
+        file = et.parse(path)
+        root = file.getroot()
+        
+        pt_ID_t = getCurrPtId()
+        pt_ID_t = pt_ID_t['extension']
+        pt_ID.append(pt_ID_t)
+        print(i, pt_ID_t)
+        
+        file = parse(path)
+        
+        first_name = file.getElementsByTagName('given')
+        nodes = first_name[0].childNodes
+        node = nodes[0]
+        pt_first_name = node.data
+        if pt_first_name is None: 
+            print('no name information found')
+                
+        last_name = file.getElementsByTagName('family')
+        nodes = last_name[0].childNodes
+        node = nodes[0]
+        pt_last_name = node.data
+        if pt_last_name is None: 
+            print('no name information found')
+            
+        age = file.getElementsByTagName('birthTime')
+        for node in age:    
+            pt_age = node.getAttribute('value')
+            if pt_age is None: 
+                print('no name information found')
+                pt_age = 'no birthday'
+                
+        race = file.getElementsByTagName('raceCode')
+        for node in race:    
+            race_code = node.getAttribute('code')
+            if race_code is None: 
+                print('no race information found')
+
+                
+        ethnicity = file.getElementsByTagName('ethnicGroupCode')
+        for node in ethnicity: 
+            ethnicity_code = node.getAttribute('code')
+            if ethnicity_code is None:
+                print('no ethnicity information found')
+   
+        gender = file.getElementsByTagName('administrativeGenderCode')
+        for node in gender: 
+            gender_code = node.getAttribute('code')
+            if gender_code is None:
+                print('no gender information found')
+                   
+        # create data frame
+        if i == 0: 
+            demographics_pt = pd.DataFrame({"pt_id"     : [pt_ID_t],
+                                            "first_name": [pt_first_name],
+                                            "last_name" : [pt_last_name],
+                                            "age"       : [pt_age],
+                                            "race"      : [race_code],
+                                            "ethnicity" : [ethnicity_code],
+                                            "gender"    : [gender_code]})
+            demographics = demographics_pt
+            i = 1
+        else:
+            demographics_pt = pd.DataFrame({"pt_id"     : [pt_ID_t],
+                                            "first_name": [pt_first_name],
+                                            "last_name" : [pt_last_name],
+                                            "age"       : [pt_age],
+                                            "race"      : [race_code],
+                                            "ethnicity" : [ethnicity_code],
+                                            "gender"    : [gender_code]})
+            demographics = pd.concat([demographics, demographics_pt])
+            i = i + 1
+          
+    return demographics
+
+def getAllPatients(table_name):
+    # puts everything together 
+
+    global currFile
+    global tree
+    global root
+    global currPt
+    global ptId
+    global ptFound, df_row
+
+    dfs = []
+    
+    for currFile in filePaths:
+    
+        # Get Patient ID
+        tree = et.parse(currFile)
+        root = tree.getroot()
+        pt_ID_t = getCurrPtId()
+        pt_ID= pt_ID_t['extension']
+    
+        # Get data 
         currPt = parse(currFile)
 
         self.tableNames()
