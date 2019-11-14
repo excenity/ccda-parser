@@ -1,0 +1,129 @@
+Blood Pressure Readings
+If possible, an array or DataFrame with Dates and BP measurements is great. Would prefer a separate integer value for Systolic and Diastolic (versus a string "130/80")
+
+List of Patient's current medications
+I will parse through in my logic for the antihypertensives
+If we can make sure they're all in similar format though, that would help. (Ie, all text, or all codes, or all lowercase, etc.)
+
+
+
+Non-pharmacological interventions (probably limited in CCD): BMI, alcohol use, smoking, exercise, diet
+
+
+Table 8.1.2
+
+Fig 4
+if atBPGoal and onMed: ##
+	Reassess in 3-6mo
+
+if BP <120/80 #Normal BP ##
+	Promote optimal lifestyle habits
+	reassess in 1y
+if SBP 120-129 and DBP < 80 #Elevated BP ##
+	NonPharm Therapy,
+	Reassess in 3-6 mo
+if SBP 130-139 and DBP 80-89 #Stage 1 Htn ##
+	if ASCVD < 10%
+		Nonpharm therapy
+		Reassess in 3-6 mo
+	else
+		Nonpharm and BP Lowering Med
+		Reassess in 1 mo
+if BP > 140 or DBP > 90 #Stage 2 Htn ##
+	Nonpharm + BP Lowering Med (2x of diff classes)
+	Reassess in 1 mo
+
+if SBP > 180 or DBP > 110  ??? Chose to leave out
+	Prompt AntiHTN drug treatment
+
+if Clinical CVD and SBP>130 or DBP>80 ##
+	Some BP Lowering Meds
+
+#Setting BP Goals 
+if Dx of HTN and (hxOfCVD or ASCVD > 10%) ##
+	set BP target to 130/80
+
+#Choice Initial Med ##
+if choosingInitialMed for Stage 1 HTN
+	Rec Thiazide, CCB, ACEi/ARB #The first line
+	Follow up in 1 month
+
+if choosingInitialMed for Stage 2 HTN or BP more than 20/10 over BP target ##
+	Rec 2 first line agents (Thiazide, CCB, ACEi/ARB)
+	Follow-up in 1 month
+
+#Patients with Stable Ischemic Heart Disease (Stable Angina)
+If SIHD and HTN ##
+	BP Goal 130/80
+
+If (Previous MI or SIHD) and HTN with BP > 130/80 ##
+	Should be on GDMT Bblocker/ACE/ARB first
+		if Angina?
+			Add CCBs if needed
+		else:
+			then add CCBs/Thiazides/MRAs as needed
+
+#HF ##
+if risk of HF
+	bp goal 130/80
+if HFrEF and HTN
+	GDMT and BP goal 130/80
+if HFpEF and HTN
+	use Diuretics to control HTN and volume overload
+if HFpEF and HTN and already on diuretics
+	Rec ACEi/ARB and Bblocker titrated to 130
+
+#CKD
+if HTN and CKD ##
+	BP Goal 130/80
+
+if HTN and CKD (Stage 3+ OR Stage1/2 w/ Albuminuria >300mg/d, or >300  AlbtoCreat ratio or an equivalent in the first morning void) ##
+	tx with an ACEi to slow kidney dz progression
+
+#Prior hx of TIA or Stroke ##
+If hx of stroke/tia and SBP > 140 or DBP > 90 and no current Antihtn drug
+	Initiate antihypertensive Tx, to reduce risk of recurrent stroke and other vascular events
+	Potentially recommend BP Goal 130/80
+
+#Diabetes ##
+If DM and HTN
+	Set Goal 130/80
+	All first line agents are useful and effective
+	Class IIb recommendation to consider ACEi/ARB first in setting of albuminuria
+
+#Race and Eth ##
+If Black + HTN + (Not HF or CKD)
+	Initial drug should include thiazide or CCB
+	if already has drug, confirm thiazide/CCB
+	If goal is 130/80, rec 2 drugs
+
+#Pregnancy
+If pregnant or becoming pregnant,
+	transition to methyldopa, nifedipine, and/or labetalol
+
+#Over 65, community-dwelling, noninstitutionalized ##
+	Set SBP goal 130
+
+#Resistant HTN
+If SBP/DBP >130/80 AND (3+ meds at optimal dose, including a diuretic if possible) OR (BP <130 but on 4+ meds)
+	Ensure office measurements, assess for nonadherence, obtain home readings to exclude white coat effect
+	Lifestyle Contributors:
+		Obesity, Physical inactivity, Excess alcohol, High salt, low-fiber diet
+	Interfering Substances
+		NSAIDs, Sympathomimetics (amph, decongest), Stimulants, OCPs, Licorice, Ephedra
+	Screen Secondary Causes
+		Primary Aldosteronism (Elevated Aldosterone/renin ratio)
+		CKD (eGFR < 60)
+		Renal Artery Stenosis
+		Pheochromocytoma
+		OSA
+	Pharm Tx:
+		Maximize diuretics
+		Add MRA
+		Add other agents with diff mechanisms
+		Use Loops diuretics in those with CKD
+		Use loops in those with Potent Vasodilators on board
+	If uncontrolled for 6 months
+		Refer to specialist for HTN or known secondary cause
+
+
